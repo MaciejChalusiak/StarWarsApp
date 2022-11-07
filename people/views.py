@@ -78,8 +78,7 @@ def create_dataset(request):
                     f"error: '{serializer.errors}'"
                 )
                 continue
-
-            Person.objects.create_person(data_set_id=data_set.id, **person)
+            Person.objects.create_person(data_set_id=data_set.id, **serializer.data)
 
         page += 1
         is_next_page = response.json()["next"]

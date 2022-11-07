@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My title</title>
-</head>
-<body>
-    <div id="sidebar">
-        {% block sidebar %}
-        <ul>
+   <head>
+      <meta charset="UTF-8">
+      <title>My title</title>
+   </head>
+   <body>
+      <div id="sidebar">
+         {% block sidebar %}
+         <ul>
             <li><a href="/show_dataset/">Show datasets</a></li>
             <li><a href="/create_dataset/">Create datasets</a></li>
-        </ul>
-        {% endblock %}
-    </div>
-
-    <div id="content">
-        {% block content %}{% endblock %}
-    </div>
-</body>
+         </ul>
+         {% endblock %}
+      </div>
+      <div id="content">
+         {% block content %}{% endblock %}
+      </div>
+   </body>
 </html>

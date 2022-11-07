@@ -1,6 +1,7 @@
-from django.db import models
-from people.managers import DataSetManager, PersonManager
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
+
+from people.managers import DataSetManager, PersonManager
 
 
 class DataSet(models.Model):

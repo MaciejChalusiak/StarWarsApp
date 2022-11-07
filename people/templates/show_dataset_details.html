@@ -1,37 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-<style>
-table, th, td {
-  border:1px solid black;
-}
-</style>
-<head>
-    <meta charset="UTF-8">
-    <title>Show_dataset</title>
-</head>
-<body>
-    <h1>
-        <a href="/show_dataset/{{data_set_id}}/download/">Download as CSV</a>
-    </h1>
-    <table>
-        <tr>
+   <style>
+      table, th, td {
+      border:1px solid black;
+      }
+   </style>
+   <head>
+      <meta charset="UTF-8">
+      <title>Show_dataset</title>
+   </head>
+   <body>
+      <h1>
+         <a href="/show_dataset/{{data_set_id}}/download/">Download as CSV</a>
+      </h1>
+      <table>
+         <tr>
             {% for key in  person_list.0.keys %}
-                <th>{{key}}</th>
+            <th>{{key}}</th>
             {% endfor %}
-        </tr>
-            {% for person in person_list %}
-            <tr>
-                {% for key, value in person.items %}
-                    <td>{{value}}</td>
-                {% endfor %}
-            </tr>
+         </tr>
+         {% for person in person_list %}
+         <tr>
+            {% for key, value in person.items %}
+            <td>{{value}}</td>
             {% endfor %}
-
-            {% if limit %}
-            <tr>
-                <td style="text-align: center" colspan="100%"><a href="/show_dataset/{{data_set_id}}">Load more</a></td>
-            </tr>
-            {% endif %}
-    </table>
-</body>
+         </tr>
+         {% endfor %}
+         {% if limit %}
+         <tr>
+            <td style="text-align: center" colspan="100%"><a href="/show_dataset/{{data_set_id}}">Load more</a></td>
+         </tr>
+         {% endif %}
+      </table>
+   </body>
 </html>

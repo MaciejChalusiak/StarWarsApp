@@ -1,11 +1,13 @@
-from django.http import HttpResponse, QueryDict
-import requests
-from people.models import DataSet, Person
-from datetime import datetime
-from people.serializers import PersonSerializer
-import logging
-from django.shortcuts import render
 import csv
+import logging
+from datetime import datetime
+
+import requests
+from django.http import HttpResponse, QueryDict
+from django.shortcuts import render
+
+from people.models import DataSet, Person
+from people.serializers import PersonSerializer
 
 
 def people_home_page(request):
@@ -19,18 +21,22 @@ def show_dataset(request):
 
 def show_dataset_details(request, data_set_id):
     person_list = list(Person.objects.filter(data_set=data_set_id).values())
-    query = QueryDict(request.META['QUERY_STRING'])
-    if limit := query.get('limit'):
-        person_list = person_list[0:int(limit)]
+    query = QueryDict(request.META["QUERY_STRING"])
+    if limit := query.get("limit"):
+        person_list = person_list[0: int(limit)]
     else:
         limit = None
-    return render(request, "show_dataset_details.html", context={"person_list": person_list, "data_set_id": data_set_id, "limit": limit})
+    return render(
+        request,
+        "show_dataset_details.html",
+        context={"person_list": person_list, "data_set_id": data_set_id, "limit": limit},
+    )
 
 
 def download_dataset(request, data_set_id):
     response = HttpResponse(
-        content_type='text/csv',
-        headers={'Content-Disposition': f'attachment; filename=data_set_{data_set_id}.csv'},
+        content_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=data_set_{data_set_id}.csv"},
     )
 
     writer = csv.writer(response)
@@ -67,8 +73,10 @@ def create_dataset(request):
 
             serializer = PersonSerializer(data=person)
             if serializer.is_valid() is False:
-                logging.warning(f"During collecting data set for person_name: '{person['name']}' serializer return "
-                                f"error: '{serializer.errors}'")
+                logging.warning(
+                    f"During collecting data set for person_name: '{person['name']}' serializer return "
+                    f"error: '{serializer.errors}'"
+                )
                 continue
 
             Person.objects.create_person(data_set_id=data_set.id, **person)
@@ -77,6 +85,5 @@ def create_dataset(request):
         is_next_page = response.json()["next"]
 
     return HttpResponse(
-        status=200,
-        content=f"Data set is correctly created. id: '{data_set.id}', name: '{data_set.name}'"
+        status=200, content=f"Data set is correctly created. id: '{data_set.id}', name: '{data_set.name}'"
     )

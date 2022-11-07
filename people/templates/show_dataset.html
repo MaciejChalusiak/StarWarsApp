@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+table, th, td {
+  border:1px solid black;
+}
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>Show_dataset</title>
+</head>
+<body>
+    <table>
+        <tr>
+            {% for key in  dataset_list.0.keys %}
+                <th>{{key}}</th>
+            {% endfor %}
+        </tr>
+            {% for data_set in dataset_list %}
+            <tr>
+                {% for key, value in data_set.items %}
+                    {% if key == "id" %}
+                        <td><a href="/show_dataset/{{data_set.id}}?limit=10">{{value}}</a></td>
+                    {% else %}
+                        <td>{{value}}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+    </table>
+</body>
+</html>

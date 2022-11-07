@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+   <style>
+      table, th, td {
+      border:1px solid black;
+      }
+   </style>
+   <head>
+      <meta charset="UTF-8">
+      <title>Count</title>
+   </head>
+   <body>
+      <center>
+         <form id="form1" action=" ">
+            <select style="width: 350px"
+               size="8", name="categories" multiple>
+               {% for key in person_key %}
+               <option value={{key}}>{{key}}</option>
+               {% endfor %}
+            </select>
+            <input type="submit">
+         </form>
+         {% if count_list %}
+         <table>
+            <tr>
+               {% for key in  count_list.0.keys %}
+               <th>{{key}}</th>
+               {% endfor %}
+            </tr>
+            {% for dictionary in count_list %}
+            <tr>
+               {% for key, value in dictionary.items %}
+               <td>{{value}}</td>
+               {% endfor %}
+            </tr>
+            {% endfor %}
+         </table>
+         {% endif %}
+      </center>
+   </body>
+</html>

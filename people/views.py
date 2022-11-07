@@ -84,6 +84,48 @@ def create_dataset(request):
         page += 1
         is_next_page = response.json()["next"]
 
-    return HttpResponse(
-        status=200, content=f"Data set is correctly created. id: '{data_set.id}', name: '{data_set.name}'"
+    return render(
+        request,
+        "create_dataset.html",
+        context={"data_set": data_set},
     )
+
+
+def count(request, data_set_id):
+    person_key = [field.name for field in Person._meta.get_fields()]
+    query = QueryDict(request.META["QUERY_STRING"])
+
+    if categories := query.getlist("categories"):
+        if len(categories) != 2:
+            return HttpResponse(status=400, content="Only two values are accepted!")
+        if not all(x in person_key for x in categories):
+            return HttpResponse(status=400, content="Bad categories!")
+
+        persons = list(Person.objects.filter(data_set=data_set_id).values())
+        first_category_values_set = set()
+        second_category_values_set = set()
+
+        for person in persons:
+            if person[categories[0]] != "unknown":
+                first_category_values_set.add(person[categories[0]])
+            if person[categories[1]] != "unknown":
+                second_category_values_set.add(person[categories[1]])
+
+        count_list = []
+        for first_value in first_category_values_set:
+            for second_value in second_category_values_set:
+                result = list(
+                    Person.objects.filter(data_set=data_set_id)
+                    .filter(**{categories[0]: first_value})
+                    .filter(**{categories[1]: second_value})
+                    .values()
+                )
+                if result:
+                    count_list.append({categories[0]: first_value, categories[1]: second_value, "count": len(result)})
+        return render(
+            request,
+            "count.html",
+            context={"data_set_id": data_set_id, "person_key": person_key, "count_list": count_list},
+        )
+
+    return render(request, "count.html", context={"data_set_id": data_set_id, "person_key": person_key})

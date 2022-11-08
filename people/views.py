@@ -113,11 +113,10 @@ def count(request, data_set_id):
             request,
             "count.html",
             context={
-                "data_set_id": data_set_id,
                 "person_key": person_key,
                 "count_dict": count_dict,
                 "categories": categories,
             },
         )
 
-    return render(request, "count.html", context={"data_set_id": data_set_id, "person_key": person_key})
+    return render(request, "count.html", context={"person_key": person_key})

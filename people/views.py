@@ -5,6 +5,7 @@ from datetime import datetime
 import requests
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render
+from petl import fromdicts, valuecounter
 
 from people.models import DataSet, Person
 from people.serializers import PersonSerializer
@@ -91,40 +92,32 @@ def create_dataset(request):
 
 
 def count(request, data_set_id):
-    person_key = [field.name for field in Person._meta.get_fields()]
+    person_key = [field.name for field in Person._meta.get_fields() if field.name not in ["id", "data_set"]]
     query = QueryDict(request.META["QUERY_STRING"])
 
     if categories := query.getlist("categories"):
-        if len(categories) != 2:
-            return HttpResponse(status=400, content="Only two values are accepted!")
-        if not all(x in person_key for x in categories):
+        if len(categories) < 2:
+            return HttpResponse(status=400, content="At least two values are required!")
+        if not all(category in person_key for category in categories):
             return HttpResponse(status=400, content="Bad categories!")
 
         persons = list(Person.objects.filter(data_set=data_set_id).values())
-        first_category_values_set = set()
-        second_category_values_set = set()
+        petl_table = fromdicts(persons)
+        count_dict = dict(valuecounter(petl_table, *categories))
 
-        for person in persons:
-            if person[categories[0]] != "unknown":
-                first_category_values_set.add(person[categories[0]])
-            if person[categories[1]] != "unknown":
-                second_category_values_set.add(person[categories[1]])
+        delete = [key for key in count_dict if "unknown" in key]
+        for key in delete:
+            del count_dict[key]
 
-        count_list = []
-        for first_value in first_category_values_set:
-            for second_value in second_category_values_set:
-                result = list(
-                    Person.objects.filter(data_set=data_set_id)
-                    .filter(**{categories[0]: first_value})
-                    .filter(**{categories[1]: second_value})
-                    .values()
-                )
-                if result:
-                    count_list.append({categories[0]: first_value, categories[1]: second_value, "count": len(result)})
         return render(
             request,
             "count.html",
-            context={"data_set_id": data_set_id, "person_key": person_key, "count_list": count_list},
+            context={
+                "data_set_id": data_set_id,
+                "person_key": person_key,
+                "count_dict": count_dict,
+                "categories": categories,
+            },
         )
 
     return render(request, "count.html", context={"data_set_id": data_set_id, "person_key": person_key})

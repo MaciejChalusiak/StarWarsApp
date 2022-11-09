@@ -6,9 +6,10 @@ import requests
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render
 from petl import fromdicts, valuecounter
+from django.core.exceptions import ObjectDoesNotExist
 
-from people.models import DataSet, Person
-from people.serializers import PersonSerializer
+from people.models import DataSet, Person, Planet
+from people.serializers import PersonSerializer, PlanetSerializer
 
 
 def people_home_page(request):
@@ -49,23 +50,28 @@ def download_dataset(request, data_set_id):
 
 
 def create_dataset(request):
-    data_set = DataSet.objects.create_data_set(name=str(datetime.now().strftime("%d.%m.%Y, %H:%M:%S")))
+    data_set = DataSet.objects.create(name=str(datetime.now().strftime("%d.%m.%Y, %H:%M:%S")))
 
     page = 1
     is_next_page = True
-    homeworld_dictionary = {}
     while is_next_page:
         response = requests.get(f"https://swapi.dev/api/people/?page={page}")
         for person in response.json()["results"]:
 
             if homeworld_url := person.get("homeworld"):
-                if homweworld_name := homeworld_dictionary.get(homeworld_url):
-                    person["homeworld"] = homweworld_name
-                else:
-                    homeworld_response = requests.get(homeworld_url)
-                    homweworld_name = homeworld_response.json()["name"]
-                    person["homeworld"] = homweworld_name
-                    homeworld_dictionary[homeworld_url] = homweworld_name
+                try:
+                    person["homeworld"] = Planet.objects.get(url=homeworld_url).name
+                except ObjectDoesNotExist:
+                    homeworld_response = requests.get(homeworld_url).json()
+                    person["homeworld"] = homeworld_response["name"]
+                    serializer = PlanetSerializer(data=homeworld_response)
+                    if serializer.is_valid():
+                        Planet.objects.create(**serializer.data)
+                    else:
+                        logging.warning(
+                            f"During collecting data set for planet_url '{homeworld_url}' serializer return "
+                            f"error: '{serializer.errors}'"
+                        )
 
             if edited := person.get("edited"):
                 person["date"] = edited.split("T")[0]
@@ -73,13 +79,14 @@ def create_dataset(request):
                 person["date"] = "unknown"
 
             serializer = PersonSerializer(data=person)
-            if serializer.is_valid() is False:
+            if serializer.is_valid():
+                Person.objects.create(data_set_id=data_set.id, **serializer.data)
+            else:
                 logging.warning(
                     f"During collecting data set for person_name: '{person['name']}' serializer return "
                     f"error: '{serializer.errors}'"
                 )
                 continue
-            Person.objects.create_person(data_set_id=data_set.id, **serializer.data)
 
         page += 1
         is_next_page = response.json()["next"]

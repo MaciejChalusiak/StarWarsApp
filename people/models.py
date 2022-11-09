@@ -1,22 +1,11 @@
 from django.db import models
 
-from people.managers import DataSetManager, PersonManager
-
 
 class DataSet(models.Model):
-    objects = DataSetManager()
-
     name = models.CharField(max_length=128)
-
-    @staticmethod
-    def create(cls, name):
-        data_set = cls(name=name)
-        return data_set
 
 
 class Person(models.Model):
-    objects = PersonManager()
-
     data_set = models.ForeignKey(DataSet, on_delete=models.CASCADE, related_name="person")
     date = models.CharField(max_length=128)
     name = models.CharField(max_length=128)
@@ -28,3 +17,8 @@ class Person(models.Model):
     birth_year = models.CharField(max_length=128)
     gender = models.CharField(max_length=128)
     homeworld = models.CharField(max_length=128)
+
+
+class Planet(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    url = models.CharField(max_length=128, unique=True)

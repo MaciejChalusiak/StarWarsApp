@@ -2,10 +2,14 @@ from django.db import models
 
 
 class DataSet(models.Model):
+    objects = models.Manager()
+
     name = models.CharField(max_length=128)
 
 
 class Person(models.Model):
+    objects = models.Manager()
+
     data_set = models.ForeignKey(DataSet, on_delete=models.CASCADE, related_name="person")
     date = models.CharField(max_length=128)
     name = models.CharField(max_length=128)
@@ -20,5 +24,7 @@ class Person(models.Model):
 
 
 class Planet(models.Model):
+    objects = models.Manager()
+
     name = models.CharField(max_length=128, unique=True)
     url = models.CharField(max_length=128, unique=True)

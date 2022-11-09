@@ -54,6 +54,13 @@ def download_dataset(request, data_set_id):
 
 
 def create_dataset(request):
+    """
+    The bottleneck of creating datasets are requests to SWAPI.
+    I limited them by adding model for home planet but it still takes a lot of time.
+    I tried to use here greenlet but get an error 'cannot switch to a different thread' -
+     probably because becaose of docker but I'm not sure.
+    I not see easy way to optimization. Probably the asyncio could help here.
+    """
     data_set = DataSet.objects.create(name=str(datetime.now().strftime("%d.%m.%Y, %H:%M:%S")))
 
     page = 1

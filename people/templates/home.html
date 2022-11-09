@@ -2,15 +2,20 @@
 <html lang="en">
    <head>
       <meta charset="UTF-8">
-      <title>My title</title>
+      <title>Home</title>
    </head>
    <body>
       <div id="sidebar">
          {% block sidebar %}
-         <ul>
-            <li><a href="/show_dataset/">Show datasets</a></li>
-            <li><a href="/create_dataset/">Create datasets</a></li>
-         </ul>
+         <center>
+            <ul><a href="/show_dataset/">Show datasets</a></ul>
+            <ul><a href="/create_dataset/">Create datasets</a></ul>
+            {% if latest_data_set_id %}
+            <ul><a href="show_dataset/{{latest_data_set_id}}/download/">Download latest data_set as CSV</a></ul>
+            {% else %}
+            <ul><a>No available dataset to download</a></ul>
+            {% endif %}
+         </center>
          {% endblock %}
       </div>
       <div id="content">

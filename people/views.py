@@ -3,17 +3,21 @@ import logging
 from datetime import datetime
 
 import requests
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import render
 from petl import fromdicts, valuecounter
-from django.core.exceptions import ObjectDoesNotExist
 
 from people.models import DataSet, Person, Planet
 from people.serializers import PersonSerializer, PlanetSerializer
 
 
 def people_home_page(request):
-    return render(request, "home.html")
+    try:
+        latest_data_set_id = DataSet.objects.latest("id").id
+    except ObjectDoesNotExist:
+        latest_data_set_id = None
+    return render(request, "home.html", context={"latest_data_set_id": latest_data_set_id})
 
 
 def show_dataset(request):
